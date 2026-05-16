@@ -1,0 +1,103 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@token = 
+
+### ============ AUTH ============
+
+### Register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "علی",
+  "email": "ali@example.com",
+  "password": "password123"
+}
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "ali@example.com",
+  "password": "password123"
+}
+
+### Logout
+POST {{baseUrl}}/auth/logout
+
+### Verify Token
+GET {{baseUrl}}/auth/verify-token
+Authorization: Bearer {{token}}
+
+### Refresh Token
+POST {{baseUrl}}/auth/refresh-token
+Authorization: Bearer {{token}}
+
+### Forgot Password
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "ali@example.com"
+}
+
+### ============ USERS ============
+
+### List Users
+GET {{baseUrl}}/users
+
+### Get User
+GET {{baseUrl}}/users/user_id
+
+### Update User
+PUT {{baseUrl}}/users/user_id
+Content-Type: application/json
+
+{
+  "id": "user_id",
+  "username": "علی_جدید",
+  "email": "ali.new@example.com",
+  "password_hash": "..."
+}
+
+### Delete User
+DELETE {{baseUrl}}/users/user_id
+
+### ============ CONTACTS ============
+
+### List Contacts
+GET {{baseUrl}}/contacts/user_id
+
+### Create Contact
+POST {{baseUrl}}/contacts/user_id
+Content-Type: application/json
+
+{
+  "first_name": "محمد",
+  "last_name": "احمدی",
+  "email": "mohammad@example.com",
+  "phone": "09123456789",
+  "description": "دوست"
+}
+
+### Get Contact
+GET {{baseUrl}}/contacts/user_id/contact_id
+
+### Update Contact
+PUT {{baseUrl}}/contacts/user_id/contact_id
+Content-Type: application/json
+
+{
+  "first_name": "محمد",
+  "last_name": "احمدی",
+  "email": "mohammad.new@example.com",
+  "phone": "09129876543",
+  "description": "دوست قدیم"
+}
+
+### Delete Contact
+DELETE {{baseUrl}}/contacts/user_id/contact_id
+
+### Search Contacts
+GET {{baseUrl}}/contacts/user_id/search?q=محمد

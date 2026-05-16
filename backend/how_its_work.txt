@@ -1,0 +1,358 @@
+┌─────────────────────────────────────┐
+│  Client (Frontend/Postman)          │
+│                                     │
+│  POST http://localhost:3000/api/auth/register
+│  {                                  │
+│    "username": "ali",               │
+│    "email": "ali@example.com",      │
+│    "password": "password123",       │
+│    "password_confirm": "password123"│
+│  }                                  │
+└────────────────┬────────────────────┘
+                 │
+                 ↓ (HTTP Request)
+┌─────────────────────────────────────┐
+│  1️⃣ HANDLER (src/handlers/auth.rs) │
+│                                     │
+│  async fn register(                 │
+│    Json(payload): Json<Register..> │
+│  ) -> Result<...>                   │
+│                                     │
+│  {                                  │
+│    AuthService::register(...)       │ ← Service صدا می‌شود
+│  }                                  │
+└────────────────┬────────────────────┘
+                 │
+                 ↓ (Business Logic)
+┌─────────────────────────────────────┐
+│  2️⃣ SERVICE (src/services/auth.rs) │
+│                                     │
+│  impl AuthService {                 │
+│    pub async fn register(..) {      │
+│      // Validation                  │
+│      if password != password_conf { │
+│        return Err(...)              │
+│      }                              │
+│                                     │
+│      // Check duplicate             │
+│      UserService::get_user_by...    │ ← User Service صدا می‌شود
+│                                     │
+│      // Create user                 │
+│      UserService::create_user(...)  │
+│    }                                │
+│  }                                  │
+└────────────────┬────────────────────┘
+                 │
+                 ↓ (More Logic)
+┌─────────────────────────────────────┐
+│  3️⃣ SERVICE (src/services/user.rs) │
+│                                     │
+│  impl UserService {                 │
+│    pub async fn create_user(..) {   │
+│      // Validate                    │
+│      // Hash password (bcrypt)      │
+│      // Create User struct          │
+│      // TODO: Save to DB            │
+│      Ok(user)                       │
+│    }                                │
+│  }                                  │
+└────────────────┬────────────────────┘
+                 │
+                 ↓ (Response)
+┌─────────────────────────────────────┐
+│  4️⃣ RESPONSE (Handler میں)        │
+│                                     │
+│  ApiResponse::ok(                   │
+│    UserResponse { ... },            │
+│    "✅ کاربر ثبت‌نام شد"            │
+│  )                                  │
+│                                     │
+│  JSON Response:                     │
+│  {                                  │
+│    "success": true,                 │
+│    "message": "✅ کاربر ثبت‌نام شد",│
+│    "data": {                        │
+│      "id": "uuid",                  │
+│      "username": "ali",             │
+│      "email": "ali@example.com"     │
+│    },                               │
+│    "timestamp": "2024-01-15T..."    │
+│  }                                  │
+└────────────────┬────────────────────┘
+                 │
+                 ↓ (HTTP 201 Response)
+┌─────────────────────────────────────┐
+│  Client دوباره JSON را دریافت می‌کند│
+└─────────────────────────────────────┘
+
+
+
+
+
+
+
+
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ 1️⃣ REGISTER                                                 │
+├─────────────────────────────────────────────────────────────┤
+│ Method: POST                                                │
+│ URL: /api/auth/register                                    │
+│                                                             │
+│ Request:                                                    │
+│ {                                                           │
+│   "username": "علی",                                      │
+│   "email": "ali@example.com",                              │
+│   "password": "securePassword123",                          │
+│   "password_confirm": "securePassword123"                  │
+│ }                                                           │
+│                                                             │
+│ Response (201 Created):                                     │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ کاربر با موفقیت ثبت‌نام شد",             │
+│   "data": {                                                 │
+│     "id": "550e8400-e29b-41d4-a716-446655440000",         │
+│     "username": "علی",                                     │
+│     "email": "ali@example.com",                             │
+│     "created_at": "2024-01-15T10:30:00Z"                  │
+│   }                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 2️⃣ LOGIN                                                    │
+├─────────────────────────────────────────────────────────────┤
+│ Method: POST                                                │
+│ URL: /api/auth/login                                       │
+│                                                             │
+│ Request:                                                    │
+│ {                                                           │
+│   "email": "ali@example.com",                              │
+│   "password": "securePassword123"                           │
+│ }                                                           │
+│                                                             │
+│ Response (200 OK):                                          │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ ورود موفق",                              │
+│   "data": {                                                 │
+│     "user": {                                               │
+│       "id": "550e8400-e29b-41d4-a716-446655440000",       │
+│       "username": "علی",                                   │
+│       "email": "ali@example.com"                            │
+│     },                                                      │
+│     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ...",
+│     "expires_in": 86400                                     │
+│   }                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 3️⃣ VERIFY TOKEN                                            │
+├─────────────────────────────────────────────────────────────┤
+│ Method: POST                                                │
+│ URL: /api/auth/verify-token                                │
+│                                                             │
+│ Request:                                                    │
+│ {                                                           │
+│   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ..."       │
+│ }                                                           │
+│                                                             │
+│ Response (200 OK):                                          │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ Token معتبر است",                         │
+│   "data": {                                                 │
+│     "user_id": "550e8400-e29b-41d4-a716-446655440000",    │
+│     "email": "ali@example.com",                             │
+│     "valid": true                                           │
+│   }                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 4️⃣ REFRESH TOKEN                                           │
+├─────────────────────────────────────────────────────────────┤
+│ Method: POST                                                │
+│ URL: /api/auth/refresh-token                               │
+│                                                             │
+│ Request:                                                    │
+│ {                                                           │
+│   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ..."       │
+│ }                                                           │
+│                                                             │
+│ Response (200 OK):                                          │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ Token تازه‌سازی شد",                      │
+│   "data": {                                                 │
+│     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ...",
+│     "expires_in": 86400                                     │
+│   }                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+
+
+
+
+
+
+
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ 1️⃣ CREATE CONTACT                                          │
+├─────────────────────────────────────────────────────────────┤
+│ Method: POST                                                │
+│ URL: /api/contacts/550e8400-e29b-41d4-a716-446655440000   │
+│      (user_id در URL)                                      │
+│                                                             │
+│ Request:                                                    │
+│ {                                                           │
+│   "first_name": "محمد",                                    │
+│   "last_name": "احمدی",                                    │
+│   "email": "mohammad@example.com",                          │
+│   "phone": "09121234567",                                   │
+│   "description": "دوست من از دانشگاه"                     │
+│ }                                                           │
+│                                                             │
+│ Response (201 Created):                                     │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ مخاطب با موفقیت ایجاد شد",               │
+│   "data": {                                                 │
+│     "id": "660e8400-e29b-41d4-a716-446655440001",         │
+│     "user_id": "550e8400-e29b-41d4-a716-446655440000",    │
+│     "first_name": "محمد",                                  │
+│     "last_name": "احمدی",                                  │
+│     "email": "mohammad@example.com",                        │
+│     "phone": "09121234567",                                 │
+│     "description": "دوست من از دانشگاه",                 │
+│     "created_at": "2024-01-15T10:35:00Z"                  │
+│   }                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 2️⃣ GET ALL CONTACTS OF USER                                │
+├─────────────────────────────────────────────────────────────┤
+│ Method: GET                                                 │
+│ URL: /api/contacts/550e8400-e29b-41d4-a716-446655440000   │
+│                                                             │
+│ Response (200 OK):                                          │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ لیست مخاطبین",                             │
+│   "data": {                                                 │
+│     "total": 2,                                             │
+│     "data": [                                               │
+│       { "id": "...", "first_name": "محمد", ... },         │
+│       { "id": "...", "first_name": "فاطمه", ... }         │
+│     ]                                                       │
+│   }                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 3️⃣ GET CONTACT BY ID                                       │
+├─────────────────────────────────────────────────────────────┤
+│ Method: GET                                                 │
+│ URL: /api/contacts/550.../660...                           │
+│      (user_id/contact_id)                                  │
+│                                                             │
+│ Response (200 OK):                                          │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ مخاطب یافت شد",                            │
+│   "data": { ... }                                           │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 4️⃣ UPDATE CONTACT                                          │
+├─────────────────────────────────────────────────────────────┤
+│ Method: PUT                                                 │
+│ URL: /api/contacts/550.../660...                           │
+│                                                             │
+│ Request:                                                    │
+│ {                                                           │
+│   "phone": "09129876543",                                   │
+│   "description": "دوست دبیرستان"                         │
+│ }                                                           │
+│                                                             │
+│ Response (200 OK):                                          │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ مخاطب تغییر کرد",                          │
+│   "data": { ... }                                           │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 5️⃣ DELETE CONTACT                                          │
+├─────────────────────────────────────────────────────────────┤
+│ Method: DELETE                                              │
+│ URL: /api/contacts/550.../660...                           │
+│                                                             │
+│ Response (200 OK):                                          │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ مخاطب حذف شد",                             │
+│   "data": null                                              │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ 6️⃣ SEARCH CONTACTS                                         │
+├─────────────────────────────────────────────────────────────┤
+│ Method: GET                                                 │
+│ URL: /api/contacts/550.../search?q=محمد                   │
+│                                                             │
+│ Response (200 OK):                                          │
+│ {                                                           │
+│   "success": true,                                          │
+│   "message": "✅ نتایج جستجو",                              │
+│   "data": {                                                 │
+│     "query": "محمد",                                       │
+│     "total": 1,                                             │
+│     "data": [ { ... } ]                                     │
+│   }                                                         │
+│ }                                                           │
+└─────────────────────────────────────────────────────────────┘
+
+
+
+
+
+🔐 AUTH (بدون Token)
+   POST /api/auth/register
+   POST /api/auth/login
+   POST /api/auth/verify-token
+   POST /api/auth/refresh-token
+
+👤 USERS (بعداً با Token)
+   GET    /api/users
+   GET    /api/users/:user_id
+   PUT    /api/users/:user_id
+   DELETE /api/users/:user_id
+
+📞 CONTACTS (بعداً با Token)
+   POST   /api/contacts/:user_id
+   GET    /api/contacts/:user_id
+   GET    /api/contacts/:user_id/:contact_id
+   PUT    /api/contacts/:user_id/:contact_id
+   DELETE /api/contacts/:user_id/:contact_id
+   GET    /api/contacts/:user_id/search?q=...
+
+
+
+
+
+
+
+
+
+   

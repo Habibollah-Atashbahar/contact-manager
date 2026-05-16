@@ -1,0 +1,30 @@
+[package]
+name = "contact-management"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+axum = "0.8.8"
+tower = "0.5.2"
+tower-http = { version = "0.6.9", features = ["cors"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+dotenv = "0.15"
+chrono = { version = "0.4", features = ["serde"] }
+bcrypt = "0.19.0"
+
+# ✅ jsonwebtoken با rust_crypto feature
+jsonwebtoken = { version = "10.0.0", features = ["rust_crypto"] }
+
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# PostgreSQL
+sqlx = { version = "0.8.5", features = [
+    "runtime-tokio-native-tls",
+    "postgres",
+    "uuid",
+    "chrono",
+] }
