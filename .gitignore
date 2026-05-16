@@ -1,11 +1,10 @@
-# Environment variables (DON'T COMMIT THESE!)
-.env
-.env.local
-.env.*.local
-.env.production
-
-# Keep examples
-!.env.example
+# Documents (نباید commit شوند)
+*.png
+*.jpg
+*.jpeg
+*.txt
+how_its_work.md
+structure.md
 
 # Backend
 backend/target/
@@ -15,18 +14,9 @@ backend/Cargo.lock
 frontend/node_modules/
 frontend/.next/
 frontend/out/
+frontend/postcss.config.mjs
+frontend/eslint.config.mjs
 
-# OS
-.DS_Store
-*.swp
-*.swo
-*~
-
-# IDEs
-.vscode/
-.idea/
-*.code-workspace
-
-# Logs
-*.log
-npm-debug.log*
+# Config files (dup)
+postcss.config.mjs
+eslint.config.mjs
