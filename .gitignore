@@ -1,13 +1,20 @@
+# Environment variables (DON'T COMMIT THESE!)
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Keep examples
+!.env.example
+
 # Backend
 backend/target/
-backend/.env
 backend/Cargo.lock
 
 # Frontend
 frontend/node_modules/
 frontend/.next/
-frontend/.env.local
-frontend/.env.*.local
+frontend/out/
 
 # OS
 .DS_Store
@@ -19,3 +26,7 @@ frontend/.env.*.local
 .vscode/
 .idea/
 *.code-workspace
+
+# Logs
+*.log
+npm-debug.log*
