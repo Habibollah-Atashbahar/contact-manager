@@ -1,6 +1,0 @@
-{
-    "app": "contact-manager-backend",
-    "platform": "docker",
-    "port": 3000,
-    "bundle": true
-}

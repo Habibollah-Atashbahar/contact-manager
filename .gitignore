@@ -1,22 +1,15 @@
-# Documents (نباید commit شوند)
-*.png
-*.jpg
-*.jpeg
-*.txt
-how_its_work.md
-structure.md
+# Docker (نیاز نیست برای Vercel)
+Dockerfile
+docker-compose.local.yml
 
-# Backend
-backend/target/
-backend/Cargo.lock
-
-# Frontend
-frontend/node_modules/
+# .next build (ignore کن)
 frontend/.next/
 frontend/out/
-frontend/postcss.config.mjs
-frontend/eslint.config.mjs
 
-# Config files (dup)
-postcss.config.mjs
-eslint.config.mjs
+# node_modules
+frontend/node_modules/
+
+# Environment (already have)
+.env
+.env.local
+.env.production
