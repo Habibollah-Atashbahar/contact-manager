@@ -1,13 +1,52 @@
+# version: '3.8'
+
+# services:
+#   backend:
+#     build: ./backend
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - DATABASE_URL=sqlite://database.db
+#       - JWT_SECRET=your-secret-key-2024
+#       - APP_ENV=development
+#     volumes:
+#       - ./backend:/app
+
+
 version: '3.8'
 
 services:
+  # سرویس دیتابیس
+  postgres:
+    image: postgres:15-alpine
+    container_name: contact_db
+    restart: always
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: contact_manager
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # سرویس بک‌ند راست
   backend:
-    build: ./backend
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: contact_backend
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=sqlite://database.db
-      - JWT_SECRET=your-secret-key-2024
-      - APP_ENV=development
-    volumes:
-      - ./backend:/app
+      - DATABASE_URL=postgresql://appuser:password123@postgres:5432/contact_manager
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=3000
+      - JWT_SECRET=your_super_secret_key_change_this_very_long_string
+      - LOG_LEVEL=info
+      - ENVIRONMENT=development
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

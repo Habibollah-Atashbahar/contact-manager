@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  # --- دیتابیس ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: contact_db
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: contact_manager
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # --- بک‌ند (Rust) ---
+  api:
+    build: ./backend
+    container_name: contact_api
+    environment:
+      - DATABASE_URL=postgresql://appuser:password123@postgres:5432/contact_manager
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=3000
+      - JWT_SECRET=your_secret_key_12345
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+
+  # --- فرانت‌اِند (Next.js) ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # اینجا آدرس API را برای محیط لوکال ست می‌کنیم
+        - NEXT_PUBLIC_API_URL=http://localhost:3000/api
+    container_name: contact_frontend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
