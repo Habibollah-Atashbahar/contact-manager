@@ -1,18 +1,8 @@
 import axios, { AxiosInstance } from "axios";
-import {
-  LoginRequest,
-  RegisterRequest,
-  CreateContactRequest,
-  Contact,
-  User,
-} from "@/types";
+import { CreateContactRequest, Contact, User } from "@/types";
 
-// در development: http://localhost:3000/api
-// در production: /api (proxy از next.config.js)
 const API_BASE_URL =
-  typeof window !== "undefined" && window.location.hostname === "localhost"
-    ? "http://localhost:3000/api"
-    : "/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 class ApiService {
   public api: AxiosInstance;
@@ -26,7 +16,6 @@ class ApiService {
       },
     });
 
-    // Load token from localStorage
     if (typeof window !== "undefined") {
       this.token = localStorage.getItem("token");
       if (this.token) {
@@ -34,7 +23,6 @@ class ApiService {
       }
     }
 
-    // Interceptor for responses
     this.api.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -54,7 +42,6 @@ class ApiService {
     this.api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 
-  // Auth Services
   async register(username: string, email: string, password: string) {
     const response = await this.api.post("/auth/register", {
       username,
@@ -87,7 +74,6 @@ class ApiService {
     }
   }
 
-  // User Services
   async getUsers() {
     const response = await this.api.get("/users");
     return response.data;
@@ -108,7 +94,6 @@ class ApiService {
     return response.data;
   }
 
-  // Contact Services
   async getContacts(userId: string) {
     const response = await this.api.get(`/contacts/${userId}`);
     return response.data;
